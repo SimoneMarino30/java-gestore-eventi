@@ -74,14 +74,14 @@ public class Event {
 
     // METHODS
 
-    public void addReservation() {
+    public void addReservation(int addedSeats) {
 
         // Controlla che l'evento non sia gia passato
         if (date.isBefore(LocalDate.now())) {
             throw new IllegalStateException("Cannot add reservation. The event has already been performed.");
         }
         // Controlla se ci sono posti disponibili
-        if (bookedSeats >= TOTAL_SEATS) {
+        else if ((bookedSeats + addedSeats) > TOTAL_SEATS) {
             throw new IllegalStateException("Cannot add reservation. No available seats to this date, sorry.");
         } else {
             // Aggiunge prenotazione
@@ -89,15 +89,15 @@ public class Event {
         }
     }
 
-    public void cancelReservation() {
+    public void cancelReservation(int subtractedSeats) {
         // Controlla che l'evento non sia gia passato
         if (date.isBefore(LocalDate.now())) {
             throw new IllegalStateException("Cannot cancel reservation. The event has already been performed.");
         }
         // Controlla che ci siano prenotazioni attive da poter disdire
-        if (bookedSeats <= 0) {
+        else if (bookedSeats - subtractedSeats < 0) {
             throw new IllegalStateException("Cannot cancel reservation. No reservations available.");
-        }
+        } else
         // Cancella prenotazione
         bookedSeats--;
     }

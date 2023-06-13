@@ -12,7 +12,8 @@ public class Main {
         boolean isValid = false;
         Event myEvent = null;
         String myTitle = null;
-        int bookedSeats = 0;
+        int addedSeats = 0;
+        int subtractedSeats = 0;
 
 
         do {
@@ -52,33 +53,50 @@ public class Main {
         System.out.println("Total seats available: " + myEvent.TOTAL_SEATS);
 
 
-        do {
-            System.out.println("How many seats would you like to reserve? ");
-            // inserisci posti da prenotare
-            try {
-                bookedSeats = scan.nextInt();
-                scan.nextLine(); // Consuma il newline rimanente dopo nextInt()
+        isValid = false;
 
-                for (int i = 1; i < bookedSeats; i++) {
-                    myEvent.addReservation();
+        // inserisci posti da prenotare
+         do {
+            System.out.println("How many seats would you like to reserve? ");
+            addedSeats = Integer.parseInt(scan.nextLine());
+
+            try {
+                for (int i = 0; i < addedSeats; i++) {
+                    myEvent.addReservation(addedSeats);
+                    // System.out.println("Seeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
                 }
+                isValid = true;
             } catch (IllegalStateException e) {
                 System.out.println("Invalid input for total seats: " + e.getMessage());
-                scan.nextLine();
             }
-        } while (!isValid);
+        }while (!isValid);
 
-        //myEvent.addReservation();
+        System.out.println("You've booked  " + addedSeats + " seats");
+        System.out.println("There are " + myEvent.getAvailableSeats() + " seats still available");
 
+        isValid = false;
+        // disdici posti prenotati
+        do {
+            System.out.println("How many seats would you like to cancel? ");
+            subtractedSeats = Integer.parseInt(scan.nextLine());
 
-        System.out.println("You've booked  " + bookedSeats + " seats");
+            try {
+                for (int i = 0; i < subtractedSeats; i++) {
+                    myEvent.cancelReservation(subtractedSeats);
+                    // System.out.println("Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                }
+                isValid = true;
+            } catch (IllegalStateException e) {
+                System.out.println("Invalid input for total seats: " + e.getMessage());
+            }
+        }while (!isValid);
+
+        System.out.println("You've cancelled  " + subtractedSeats + " seats");
         System.out.println("There are " + myEvent.getAvailableSeats() + " seats still available");
         System.out.println(myEvent);
         scan.close();
     }
 }
-
-
 
 //   private String title;
 //    private LocalDate date;
