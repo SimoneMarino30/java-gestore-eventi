@@ -8,25 +8,25 @@ public class Event {
     // ATTRIBUTES
     private String title;
     private LocalDate date;
-    private int totalSeats;
+    protected final int TOTAL_SEATS;
     private int bookedSeats;
 
     // CONSTRUCTOR
-    public Event(String title, LocalDate date, int totalSeats) {
+    public Event(String title, LocalDate date, int TOTAL_SEATS) {
         if(title != null && !title.isBlank()){
             this.title = title;
         } else {
             throw new IllegalArgumentException("Invalid title. Please insert a valid string");
         }
 
-        if (date.isAfter(LocalDate.now())) {
-            this.date = date;
-        } else {
+        if (date.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Invalid date. The event date must be after today's date.");
+        } else {
+            this.date = date;
         }
 
-        if(totalSeats > 0) {
-            this.totalSeats = totalSeats;
+        if(TOTAL_SEATS > 0) {
+            this.TOTAL_SEATS = TOTAL_SEATS;
         } else {
             throw new IllegalArgumentException();
         }
@@ -42,7 +42,11 @@ public class Event {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        if(title != null && !title.isBlank()){
+            this.title = title;
+        } else {
+            throw new IllegalArgumentException("Invalid title. Please insert a valid string");
+        }
     }
 
     // date
@@ -51,12 +55,16 @@ public class Event {
     }
 
     public void setDate(LocalDate date) {
-        this.date = date;
+        if (date.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Invalid date. The event date must be after today's date.");
+        } else {
+            this.date = date;
+        }
     }
 
     // totalSeats
     public int getTotalSeats() {
-        return totalSeats;
+        return TOTAL_SEATS;
     }
 
     // bookedSeats
@@ -65,17 +73,20 @@ public class Event {
     }
 
     // METHODS
-    public void AddReservation() {
+
+    public void addReservation() {
+
         // Controlla che l'evento non sia gia passato
         if (date.isBefore(LocalDate.now())) {
             throw new IllegalStateException("Cannot add reservation. The event has already been performed.");
         }
         // Controlla se ci sono posti disponibili
-        if (bookedSeats >= totalSeats) {
+        if (bookedSeats >= TOTAL_SEATS) {
             throw new IllegalStateException("Cannot add reservation. No available seats to this date, sorry.");
+        } else {
+            // Aggiunge prenotazione
+            bookedSeats++;
         }
-        // Aggiunge prenotazione
-        bookedSeats++;
     }
 
     public void cancelReservation() {
@@ -91,14 +102,16 @@ public class Event {
         bookedSeats--;
     }
 
+    public int getAvailableSeats() {
+        return TOTAL_SEATS - bookedSeats;
+    }
+
     // TO STRING
     @Override
     public String toString() {
         return "Event{" +
                 "title='" + title + '\'' +
                 ", date=" + date +
-                ", totalSeats=" + totalSeats +
-                ", bookedSeats=" + bookedSeats +
                 '}';
     }
 }
