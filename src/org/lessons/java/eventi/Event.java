@@ -1,6 +1,7 @@
 package org.lessons.java.eventi;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Event {
     //VARIABLES
@@ -8,29 +9,23 @@ public class Event {
     // ATTRIBUTES
     private String title;
     private LocalDate date;
-    protected final int TOTAL_SEATS;
-    private int bookedSeats;
+    private int total_seats;
+    protected int bookedSeats;
 
     // CONSTRUCTOR
-    public Event(String title, LocalDate date, int TOTAL_SEATS) {
-        if(title != null && !title.isBlank()){
-            this.title = title;
-        } else {
-            throw new IllegalArgumentException("Invalid title. Please insert a valid string");
-        }
+    public Event(String title, LocalDate date, int total_seats) throws IllegalArgumentException{
 
-        if (date.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Invalid date. The event date must be after today's date.");
-        } else {
-            this.date = date;
-        }
+        validateTitle(title);
 
-        if(TOTAL_SEATS > 0) {
-            this.TOTAL_SEATS = TOTAL_SEATS;
-        } else {
-            throw new IllegalArgumentException();
-        }
+        validateDate(date);
 
+        if(total_seats <= 0) {
+            throw new IllegalArgumentException("Seats must be a positive number different to 0");
+        }
+        // Se tutto va a buon fine, istanzio il mio evento
+        this.title = title;
+        this.date = date;
+        this.total_seats = total_seats;
         this.bookedSeats = 0;
     }
 
@@ -42,11 +37,8 @@ public class Event {
     }
 
     public void setTitle(String title) {
-        if(title != null && !title.isBlank()){
-            this.title = title;
-        } else {
-            throw new IllegalArgumentException("Invalid title. Please insert a valid string");
-        }
+        validateTitle(title);
+        this.title = title;
     }
 
     // date
@@ -55,16 +47,14 @@ public class Event {
     }
 
     public void setDate(LocalDate date) {
-        if (date.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Invalid date. The event date must be after today's date.");
-        } else {
-            this.date = date;
-        }
+       validateDate(date);
+       this.date = date;
+
     }
 
     // totalSeats
     public int getTotalSeats() {
-        return TOTAL_SEATS;
+        return total_seats;
     }
 
     // bookedSeats
@@ -72,46 +62,60 @@ public class Event {
         return bookedSeats;
     }
 
-    // METHODS
-
-    public void addReservation(int addedSeats) {
-
-        // Controlla che l'evento non sia gia passato
-        if (date.isBefore(LocalDate.now())) {
-            throw new IllegalStateException("Cannot add reservation. The event has already been performed.");
-        }
-        // Controlla se ci sono posti disponibili
-        else if ((bookedSeats + addedSeats) > TOTAL_SEATS) {
-            throw new IllegalStateException("Cannot add reservation. No available seats to this date, sorry.");
-        } else {
-            // Aggiunge prenotazione
-            bookedSeats++;
-        }
+    // metodo che mi permette di tenere traccia dei posti disponibili, sempre aggiornata e in ogni parte del codice (public)
+    public int getSeatsStillAvailable() {
+        return total_seats - bookedSeats;
+    }
+    // Metodo per formattare la data in formato ITA
+    public String getFormattedDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return this.date.format(formatter);
     }
 
-    public void cancelReservation(int subtractedSeats) {
+    // METHODS
+
+    public void addReservation() throws RuntimeException{ // metodo public per poter interagire dall' esterno, void per modificare lo stato interno della mia classe
+
         // Controlla che l'evento non sia gia passato
-        if (date.isBefore(LocalDate.now())) {
-            throw new IllegalStateException("Cannot cancel reservation. The event has already been performed.");
+        if (this.date.isBefore(LocalDate.now())) {
+            throw new RuntimeException("Cannot add reservation. The event has already been performed.");
         }
-        // Controlla che ci siano prenotazioni attive da poter disdire
-        else if (bookedSeats - subtractedSeats < 0) {
-            throw new IllegalStateException("Cannot cancel reservation. No reservations available.");
-        } else
+        // Controlla se ci sono posti disponibili
+        if (getSeatsStillAvailable() == 0)   {
+            throw new RuntimeException("Sorry, there are no available seats at the moment");
+        }
+        // Aggiunge una prenotazione
+        bookedSeats++;
+    }
+
+    public void cancelReservation() throws RuntimeException{
+        // Controlla che l'evento non sia gia passato
+        if (this.date.isBefore(LocalDate.now())) {
+            throw new RuntimeException("Cannot add reservation. The event has already been performed.");
+        }
+        // Controlla se ci sono prenotazioni attive
+        if (getSeatsStillAvailable() > 0)   {
+            throw new RuntimeException("You have't book any seat yet");
+        }
         // Cancella prenotazione
         bookedSeats--;
     }
 
-    public int getAvailableSeats() {
-        return TOTAL_SEATS - bookedSeats;
+    // VALIDATE METHODS
+    private void validateTitle(String t) throws IllegalArgumentException{ // t è il title che mi arriva dall' esterno ma il metodo vale anche nel costruttore
+        if(t == null || t.isBlank()){
+            throw new IllegalArgumentException("Invalid title. Please insert a valid string");
+        }
     }
 
-    // TO STRING
+    private void validateDate(LocalDate d) throws IllegalArgumentException{
+        if (d == null || d.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Invalid date. The event date must be after today's date.");
+        }
+    }
+    // OVERRIDE TO STRING
     @Override
     public String toString() {
-        return "Event{" +
-                "title='" + title + '\'' +
-                ", date=" + date +
-                '}';
+        return  getFormattedDate() + getTitle();
     }
 }
