@@ -1,5 +1,6 @@
 package org.lessons.java.eventi;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -8,15 +9,42 @@ public class Main {
 
         //Scanner per richiesta all' utente
         Scanner scan = new Scanner(System.in);
-        // VARIABLES
-        boolean isValid = false;
-        Event myEvent = null;
-        String myTitle = null;
-        int addedSeats = 0;
-        int subtractedSeats = 0;
 
+        // inserisci titolo
+        System.out.println("Which event would you like to attend?");
+        String myTitle = scan.nextLine();
 
+        LocalDate myDate = null;
         do {
+            // inserisci la data
+            System.out.println("When is the event? (Please, use yyyy-MM-dd format): ");
+            String dateString = scan.nextLine();
+            try {
+                myDate = LocalDate.parse(dateString);
+            } catch (Exception e) {
+                System.out.println("Invalid date format");;
+            }
+        } while (myDate == null);
+
+        // chiedo quanti posti ha l'evento
+        System.out.println("How many seats does the event has? ");
+        int mySeats = Integer.parseInt(scan.nextLine());
+        // Creazione evento
+        Event myEvent = null;
+        try {
+            // Creo l'evento
+            myEvent = new Event(myTitle, myDate, mySeats);
+            // Stampo l' evento
+            System.out.println("YOUR EVENT: " + myEvent.toString());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Something went wrong, unable to create an event");
+            System.out.println(e.getMessage());;
+        }
+
+        scan.close();
+
+
+        /*do {
             // inserisci titolo
             System.out.println("Which event would you like to attend?");
 
@@ -41,16 +69,19 @@ public class Main {
             scan.nextLine();
 
             try {
-                myEvent = new Event(myTitle, myDate, 1000);
+                myEvent = new Event(myTitle, myDate, 10);
                 isValid = true;
             } catch(IllegalArgumentException e) {
                 System.out.println("Invalid input: " + e.getMessage());
             }
         } while (!isValid);
 
+
+
         // stampo il mio evento
         System.out.println(myEvent);
-        System.out.println("Total seats available: " + myEvent.TOTAL_SEATS);
+        System.out.println("Total seats available: " + myEvent.getTotalSeats());
+
 
 
         isValid = false;
@@ -61,9 +92,10 @@ public class Main {
             addedSeats = Integer.parseInt(scan.nextLine());
 
             try {
-                for (int i = 0; i < addedSeats; i++) {
+                for (int i = 1; i < addedSeats+1; i++) {
                     myEvent.addReservation(addedSeats);
                     // System.out.println("Seeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                    isValid = true;
                 }
                 isValid = true;
             } catch (IllegalStateException e) {
@@ -94,11 +126,6 @@ public class Main {
         System.out.println("You've cancelled  " + subtractedSeats + " seats");
         System.out.println("There are " + myEvent.getAvailableSeats() + " seats still available");
         System.out.println(myEvent);
-        scan.close();
+        scan.close();*/
     }
 }
-
-//   private String title;
-//    private LocalDate date;
-//    private final int TOTAL_SEATS;
-//    private int bookedSeats;
